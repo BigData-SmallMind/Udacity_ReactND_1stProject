@@ -3,8 +3,8 @@ import SearchField from "./SearchField.js";
 import Book from "./Book";
 
 const SearchBooks = (props) => {
-  const { onSearchBooks, searchedBooks } = props;
-  console.log(searchedBooks);
+  const { onSearchBooks, searchedBooks, mergedBooks, bookShelfChanger } = props;
+  // console.log(searchedBooks);
 
   return (
     <div className="search-books">
@@ -17,12 +17,13 @@ const SearchBooks = (props) => {
       </div>
       <div className="search-books-results">
         <ol className="books-grid">
-          {searchedBooks.map((book) => {
+          {mergedBooks.map((b) => {
             return (
               <Book
-                book={book}
-                key={book.id}
-                shelf={book.shelf ? book.shelf : "none"}
+                book={b}
+                key={b.id}
+                shelf={b.shelf ? b.shelf : "none"}
+                bookShelfChanger={bookShelfChanger}
               />
             );
           })}

@@ -10,8 +10,12 @@ const App = () => {
   const [searchedBooks, setSearchedBooks] = useState([]);
 
   useEffect(() => {
-    BooksAPI.getAll().then((books) => setAllBooks(books));
-  }, []);
+    BooksAPI.getAll()
+      .then((books) => setAllBooks(books))
+      .catch((error) => {
+        console.log(`getAll() error: ${error.name}`);
+      });
+  }, [allBooks]);
 
   const shelves = [
     { id: "currentlyReading", value: "Currently Reading" },
@@ -20,30 +24,46 @@ const App = () => {
   ];
 
   const bookShelfChanger = (book, shelf) => {
-    BooksAPI.update(book, shelf).then((books) => {
-      console.log(books);
+    BooksAPI.update(book, shelf).catch((error) => {
+      console.log(`update() error: ${typeof error}`);
     });
   };
 
-
-   const searchBooks = (query) => {
-    BooksAPI.search(query).then((books) => {
-      setSearchedBooks(books);
-    });
+  const searchBooks = (searchText) => {
+    if (searchText.length > 0) {
+      BooksAPI.search(searchText).then((b) => {
+        if (b.error) {
+          setSearchedBooks([]);
+        } else {
+          setSearchedBooks(b);
+        }
+      });
+    } else {
+      setSearchedBooks([]);
+    }
   };
-  console.log(searchedBooks)
+
+  const mergedBooks = searchedBooks.map((b) => {
+    allBooks.map((book) => {
+      if (book.id === b.id) {
+        b.shelf = book.shelf;
+      }
+      return book;
+    });
+    return b;
+  });
 
   return (
     <Routes>
       <Route
-        exact="true"
         path="/search"
         element={
           <SearchBooks
             books={allBooks}
             onSearchBooks={searchBooks}
             searchedBooks={searchedBooks}
-       
+            mergedBooks={mergedBooks}
+            bookShelfChanger={bookShelfChanger}
           />
         }
       />
