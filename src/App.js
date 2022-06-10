@@ -38,16 +38,15 @@ const App = () => {
       setSearchedBooks([]);
     }
   };
-  const mergedBooks = [];
-
-  searchedBooks.forEach((b) => {
-    shelfBooks.forEach((book) => {
-      if (book.id === b.id) {
+  
+  const synchedBooks = searchedBooks.map((b) => {
+    shelfBooks.map((book) => {
+      if (book.title === b.title) {
         b.shelf = book.shelf;
       }
-      mergedBooks.push (book);
+      return book;
     });
-    mergedBooks.push(b) ;
+    return b;
   });
 
   return (
@@ -59,7 +58,7 @@ const App = () => {
             books={shelfBooks}
             onSearchBooks={searchBooks}
             searchedBooks={searchedBooks}
-            mergedBooks={mergedBooks}
+            mergedBooks={synchedBooks}
             bookShelfChanger={bookShelfChanger}
           />
         }
