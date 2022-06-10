@@ -1,29 +1,38 @@
 import React, { useState, useEffect } from "react";
-import * as BooksAPI from './BooksAPI'
+import * as BooksAPI from "./BooksAPI";
 import { Route, Routes, Link } from "react-router-dom";
 import "./App.css";
 
-
 const App = () => {
-  const [allBooks, setAllBooks] = useState([])
+  const [allBooks, setAllBooks] = useState([]);
 
   useEffect(() => {
-    BooksAPI.getAll().then(books => setAllBooks(books))
-  }, [])
-  console.log()
+    BooksAPI.getAll().then((books) => setAllBooks(books));
+  }, []);
+  console.log(allBooks);
   const shelves = [
-    {}
-  ]
+    { key: "currentlyReading", value: "Currently Reading" },
+    { key: "wantToRead", value: "Want to Read" },
+    { key: "read", value: "Read" },
+  ];
 
   return (
     <Routes>
-      <Route exact="true" path="/search" element={<SearchBooks books={allBooks}/>} />
-      <Route path="/" element={<Shelves />} />
+      <Route
+        exact="true"
+        path="/search"
+        element={<SearchBooks books={allBooks} />}
+      />
+      <Route
+        path="/"
+        element={<Shelves shelves={shelves} books={allBooks} />}
+      />
     </Routes>
   );
 };
 
-const Shelves = () => {
+const Shelves = (props) => {
+  const { shelves, books } = props;
   return (
     <div className="list-books">
       <div className="list-books-title">
@@ -31,9 +40,9 @@ const Shelves = () => {
       </div>
       <div className="list-books-content">
         <div>
-          <Shelf />
-          <Shelf />
-          <Shelf />
+          {shelves.map((shelf) => {
+            return <Shelf shelf={shelf} books={books} key={shelf.key} />;
+          })}
         </div>
       </div>
       <OpenSearch />
@@ -41,76 +50,20 @@ const Shelves = () => {
   );
 };
 
-const SearchBooks = (props) => {
-  const { books } = props
-
-  return (
-    <div className="search-books">
-      <div className="search-books-bar">
-        <Link exact to="/">
-          <button className="close-search">close</button>
-        </Link>
-        <div className="search-books-input-wrapper">
-          {/*
-          NOTES: The search from BooksAPI is limited to a particular set of search terms.
-          You can find these search terms here:
-          https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-          However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-          you don't find a specific author or title. Every search is limited by search terms.
-        */}
-          <input type="text" placeholder="Search by title or author" />
-        </div>
-      </div>
-      <div className="search-books-results">
-        <ol className="books-grid">
-          {books.slice(-2).map((book) => (
-            <li key={book.id}>
-              <div className="book">
-                <div className="book-top">
-                  <div
-                    className="book-cover"
-                    style={{
-                      width: 128,
-                      height: 193,
-                      backgroundImage: `url("${book.imageLinks.thumbnail}")`,
-                    }}
-                  />
-                  <div className="book-shelf-changer">
-                    <select>
-                      <option value="move" disabled>
-                        Move to...
-                      </option>
-                      <option value="currentlyReading">
-                        Currently Reading
-                      </option>
-                      <option value="wantToRead">Want to Read</option>
-                      <option value="read">Read</option>
-                      <option value="none">None</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="book-title">{book.title}</div>
-                <div className="book-authors">{book.authors[0]}</div>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </div>
-  );
-};
-
 const Shelf = (props) => {
+  const { shelf, books } = props;
+  const booksOnCurrentShelf = books.filter((book) => {
+    return book.shelf === shelf.key;
+  });
+
   return (
     <div className="bookshelf">
-      <h2 className="bookshelf-title">Currently Reading</h2>
+      <h2 className="bookshelf-title">{shelf.value}</h2>
       <div className="bookshelf-books">
         <ol className="books-grid">
-          <Book />
-          <Book />
-          <Book />
-          <Book />
+          {booksOnCurrentShelf.map((book) => {
+            return <Book book={book} key={book.id} />;
+          })}
         </ol>
       </div>
     </div>
@@ -118,6 +71,7 @@ const Shelf = (props) => {
 };
 
 const Book = (props) => {
+  const { book } = props;
   return (
     <li>
       <div className="book">
@@ -127,14 +81,13 @@ const Book = (props) => {
             style={{
               width: 128,
               height: 193,
-              backgroundImage:
-                'url("http://books.google.com/books/content?id=PGR2AwAAQBAJ&printsec=frontcover&img=1&zoom=1&imgtk=AFLRE73-GnPVEyb7MOCxDzOYF1PTQRuf6nCss9LMNOSWBpxBrz8Pm2_mFtWMMg_Y1dx92HT7cUoQBeSWjs3oEztBVhUeDFQX6-tWlWz1-feexS0mlJPjotcwFqAg6hBYDXuK_bkyHD-y&source=gbs_api")',
+              backgroundImage: `url(${book.imageLinks.thumbnail})`,
             }}
           />
           <ShelfPicker />
         </div>
-        <div className="book-title">To Kill a Mockingbird</div>
-        <div className="book-authors">Harper Lee</div>
+        <div className="book-title">{book.title}</div>
+        <div className="book-authors">{book.authors.join(", ")}</div>
       </div>
     </li>
   );
@@ -166,4 +119,47 @@ const OpenSearch = () => {
   );
 };
 
+const SearchBooks = (props) => {
+  const { books } = props;
+
+  return (
+    <div className="search-books">
+      <div className="search-books-bar">
+        <OpenShelvesBtn />
+        <SearchField />
+      </div>
+      <div className="search-books-results">
+        <ol className="books-grid">
+        {books.map((book) => {
+            return <Book book={book} key={book.id} />;
+          })}
+        </ol>
+      </div>
+    </div>
+  );
+};
+
+const OpenShelvesBtn = () => {
+  return (
+    <Link exact to="/">
+      <button className="close-search">close</button>
+    </Link>
+  );
+};
+
+const SearchField = () => {
+  return (
+    <div className="search-books-input-wrapper">
+      {/*
+          NOTES: The search from BooksAPI is limited to a particular set of search terms.
+          You can find these search terms here:
+          https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
+
+          However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
+          you don't find a specific author or title. Every search is limited by search terms.
+        */}
+      <input type="text" placeholder="Search by title or author" />
+    </div>
+  );
+};
 export default App;
