@@ -12,7 +12,7 @@ const ShelfPicker = (props) => {
 
   return (
     <div className="book-shelf-changer">
-      <select defaultValue='none' value={shelfSetter} onChange={handleSelection}>
+      <select  value={shelfSetter || 'none'} onChange={handleSelection}>
         <option value="move" disabled>
           Move to...
         </option>

@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import SearchBooks from "./SearchBooks";
 import Shelves from "./Shelves";
+import NotFound from "./NotFound";
 
 const App = () => {
   const [shelfBooks, setShelfBooks] = useState([]);
@@ -38,11 +39,21 @@ const App = () => {
       setSearchedBooks([]);
     }
   };
-  
+
+  // useEffect(() => {
+  //   searchText.length < 1 ? setSearchedBooks([]) : null;
+  // }, [searchText]);
+
   const synchedBooks = searchedBooks.map((b) => {
     shelfBooks.map((book) => {
       if (book.title === b.title) {
         b.shelf = book.shelf;
+      }
+      if (!b.shelf) {
+        b.shelf = "none";
+      }
+      if (!book.shelf) {
+        book.shelf = "none";
       }
       return book;
     });
@@ -51,6 +62,7 @@ const App = () => {
 
   return (
     <Routes>
+      <Route path="*" element={<NotFound />} />
       <Route
         path="/search"
         element={

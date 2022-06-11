@@ -6,7 +6,7 @@ const SearchField = (props) => {
 
   const handleSearchText = (e) => {
     setSearchText(e.target.value);
-    onSearchBooks(searchText);
+    onSearchBooks(e.target.value);
   };
 
   return (
@@ -15,6 +15,7 @@ const SearchField = (props) => {
         type="text"
         placeholder="Search by title or author"
         onChange={handleSearchText}
+        value={searchText}
       />
     </div>
   );

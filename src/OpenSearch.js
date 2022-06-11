@@ -4,7 +4,7 @@ const OpenSearch = () => {
     return (
       <div className="open-search">
         <Link to="/search">
-          <button>Add a book</button>
+          <div>Add a book</div>
         </Link>
       </div>
     );
