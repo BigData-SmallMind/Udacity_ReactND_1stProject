@@ -1,4 +1,4 @@
-import Book from "./Book";
+import Book from "../Book/Book";
 
 const Shelf = (props) => {
     const { shelf, books, bookShelfChanger } = props;

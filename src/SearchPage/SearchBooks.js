@@ -1,35 +1,28 @@
 import OpenShelvesBtn from "./OpenShelvesBtn";
 import SearchField from "./SearchField.js";
-import Book from "./Book";
+import Book from "../Book/Book";
 
 const SearchBooks = (props) => {
-  const { onSearchBooks, searchedBooks, mergedBooks, bookShelfChanger } = props;
-  // console.log(searchedBooks);
+  const { onSearchBooks, synchedBooks, bookShelfChanger, clearSearch } = props;
 
   return (
     <div className="search-books">
       <div className="search-books-bar">
-        <OpenShelvesBtn />
-        <SearchField
-          onSearchBooks={onSearchBooks}
-          searchedBooks={searchedBooks}
-        />
+        <OpenShelvesBtn clearSearch={clearSearch}/>
+        <SearchField onSearchBooks={onSearchBooks} />
       </div>
       <div className="search-books-results">
         <ol className="books-grid">
-          {mergedBooks.map((b) => {
+          {synchedBooks.map((b) => {
             return (
               <Book
                 book={b}
                 key={b.id}
-                shelf={b.shelf ? b.shelf : "none"}
+                shelf={b.shelf}
                 bookShelfChanger={bookShelfChanger}
               />
             );
           })}
-          {/* {searchedBooks.map((book) => {
-              return <li>{book.authors.join(', ')}</li>;
-            })} */}
         </ol>
       </div>
     </div>

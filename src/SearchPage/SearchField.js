@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const SearchField = (props) => {
   const { onSearchBooks } = props;
-  const [searchText, setSearchText] = useState("Android");
+  const [searchText, setSearchText] = useState('');
 
   const handleSearchText = (e) => {
     setSearchText(e.target.value);

@@ -2,63 +2,67 @@ import React, { useState, useEffect } from "react";
 import * as BooksAPI from "./BooksAPI";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import SearchBooks from "./SearchBooks";
-import Shelves from "./Shelves";
+import SearchBooks from "./SearchPage/SearchBooks";
+import Shelves from "./MainPage/Shelves";
 import NotFound from "./NotFound";
+
+const shelves = [
+  { id: "currentlyReading", value: "Currently Reading" },
+  { id: "wantToRead", value: "Want to Read" },
+  { id: "read", value: "Read" },
+];
 
 const App = () => {
   const [shelfBooks, setShelfBooks] = useState([]);
   const [searchedBooks, setSearchedBooks] = useState([]);
 
   useEffect(() => {
-    BooksAPI.getAll()
-      .then((books) => setShelfBooks(books))
-      .catch((error) => {
-        console.log(`getAll() error: ${error.name}`);
-      });
-  }, [shelfBooks]);
+    BooksAPI.getAll().then((books) => setShelfBooks(books));
+  }, []);
 
-  const shelves = [
-    { id: "currentlyReading", value: "Currently Reading" },
-    { id: "wantToRead", value: "Want to Read" },
-    { id: "read", value: "Read" },
-  ];
-
-  const bookShelfChanger = (book, shelf) => {
-    BooksAPI.update(book, shelf).catch((error) => {
-      console.log(`update() error: ${typeof error}`);
+  const searchBooks = (searchText) => {
+    BooksAPI.search(searchText).then((books) => {
+      console.log(books);
+      if (searchText.length > 0) {
+        if (books.error) {
+          setSearchedBooks([]);
+        } else {
+          setSearchedBooks(books);
+        }
+      } else {
+        setSearchedBooks([]);
+      }
     });
   };
 
-  const searchBooks = (searchText) => {
-    if (searchText.length > 0) {
-      BooksAPI.search(searchText).then((b) => {
-        b.error ? setSearchedBooks([]) : setSearchedBooks(b);
-      });
-    } else {
-      setSearchedBooks([]);
-    }
+  const clearSearch = () => {
+    setSearchedBooks([]);
   };
-
-  // useEffect(() => {
-  //   searchText.length < 1 ? setSearchedBooks([]) : null;
-  // }, [searchText]);
 
   const synchedBooks = searchedBooks.map((b) => {
     shelfBooks.map((book) => {
-      if (book.title === b.title) {
+      if (book.id === b.id) {
         b.shelf = book.shelf;
-      }
-      if (!b.shelf) {
-        b.shelf = "none";
-      }
-      if (!book.shelf) {
-        book.shelf = "none";
       }
       return book;
     });
     return b;
   });
+
+  const bookShelfChanger = (book, shelf) => {
+    BooksAPI.update(book, shelf).then(console.log(shelfBooks));
+
+    let updatedBookShelves = shelfBooks.filter((b) => {
+      return b.id !== book.id;
+    });
+
+    if (shelf !== "none") {
+      book.shelf = shelf;
+      updatedBookShelves.push(book);
+    }
+
+    setShelfBooks(updatedBookShelves);
+  };
 
   return (
     <Routes>
@@ -69,9 +73,9 @@ const App = () => {
           <SearchBooks
             books={shelfBooks}
             onSearchBooks={searchBooks}
-            searchedBooks={searchedBooks}
-            mergedBooks={synchedBooks}
+            synchedBooks={synchedBooks}
             bookShelfChanger={bookShelfChanger}
+            clearSearch={clearSearch}
           />
         }
       />
